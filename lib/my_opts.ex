@@ -1,8 +1,8 @@
 defmodule MyOpts do
   
-  use Xopt
+  use XOpts
 
-  option :help, :boolean
-  option :version, :boolean
+  def options, do: []
+
 
 end

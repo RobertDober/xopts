@@ -1,9 +1,10 @@
 defmodule Support.MyOpts do
   
-  use Xopt
+  use XOpts
 
-  option :help, :boolean
-  option :version, :boolean
+  def options, do: [
+    help: :boolean,
+    version: :boolean
+  ]
 
-  # def debug, do: IO.inspect(@_option_definitions)
 end
