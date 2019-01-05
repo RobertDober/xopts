@@ -2,7 +2,8 @@ defmodule MyOpts do
   
   use XOpts
 
-  def options, do: []
+  option :help, :boolean
+  option :count, :integer, 42
 
 
 end

@@ -14,6 +14,8 @@ defmodule XoptTest do
 
     test "can be set by parsing" do
       {:ok, parsed} = Simple.parse(~w{--no-verbose --count=11})
+      refute parsed.verbose
+      assert Enum.empty?(parsed.args)
     end
   end
   # describe "simple options" do
