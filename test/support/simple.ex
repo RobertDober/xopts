@@ -6,5 +6,4 @@ defmodule Support.Simple do
   option :verbose, :boolean, true
   option :count, :integer, 42
 
-  def show_options, do: @_xoptions
 end

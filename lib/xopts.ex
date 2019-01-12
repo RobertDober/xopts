@@ -1,29 +1,56 @@
 defmodule XOpts do
 
   @moduledoc """
-  Coming soon
+  ## Synopsis
+ 
+  Use macros to define a parse function (for a strict `OptionParser.parse` invocation)
+  returning a `%__MODULE__.Xopts{}` struct.
+
+  ## Usage
+
+  Use the `XOpts` module in your module
+
+      defmodule MyMod do
+
+        use XOpts
+
+  then define options with the `options` macro.
+
+        options :version, :string
+        options :verbose, :boolean
+        options :language, :string, "elixir"
+
+  This will create a struct `MyMod.XOpts` with all defined options as keys and default values
+  according to the options' type or explicitly defined default values.
+
+  In the above case the injected `XOpts` module would contain the following code:
+
+        defstruct [version: "", verbose: false, language: "elixir"]
+
+  And a `parse` function is injected into `MyMod`
+
+        %MyMod.XOpts{verbose: true, language: "erlang"} = MyMod.parse(~w(--verbose --language erlang)) 
+
+
   """
-
-  @defined_types %{
-    boolean: false,
-    float: 0.0,
-    integer: 0,
-    string: "",
-  }
-
 
   defmacro __before_compile__(_env) do
     quote do
       xoptions = Module.get_attribute( __MODULE__, :_xoptions )
       defmodule XOpts do
-	defstruct unquote(__MODULE__).make_struct(xoptions, [args: nil])
+	defstruct unquote(__MODULE__).Tools.make_options(
+          xoptions, 
+          [],
+          %{},
+          [args: nil, groups: %{}, is: %{valid: false}, options: %{}])
       end
+
       @doc """
       Injected function to allow to pass the `@_xoptions` module attribute to the real parsing
       function defined in unquote(__MODULE__).
       """
       def parse(args) do
-	unquote(__MODULE__).parse(args, @_xoptions, __MODULE__.XOpts)
+	unquote(__MODULE__).Parser.parse(args, @_xoptions, __MODULE__.XOpts)
       end
     end
   end
@@ -37,48 +64,33 @@ defmodule XOpts do
     end
   end
 
-  defmacro option(name, definition, default \\ nil)
-  defmacro option(name, type, default) do
-    quote bind_quoted: [default: default, name: name, type: type] do
+  @doc """
+    Define an option by name, type and an optional default value.
+  """
+  defmacro option(name, definition, default \\ nil, group \\ nil)
+  defmacro option(name, type, default, group) do
+    quote bind_quoted: [default: default, group: group, name: name, type: type] do
       Module.put_attribute( __MODULE__, :_xoptions,
-      [ {name, type, default, nil} | Module.get_attribute( __MODULE__, :_xoptions ) ])
+      [ {name, type, default, group} | Module.get_attribute( __MODULE__, :_xoptions ) ])
     end
-  end
-
-  @doc "not for the public API, but calls are injected into the client module"
-  def make_struct(xoptions, result)
-  def make_struct([], result), do: result
-  def make_struct([{name, type, nil, _}|rest], result) do
-    make_struct(rest, [{name, example_value(type)} | result])
-  end
-  def make_struct([{name, type, default, _}|rest], result) do
-    make_struct(rest, [{name, default} | result])
   end
 
   @doc """
-  forwards `args` to `OptionParser.parse`, while the options are deduced from the `option` macro
-  invocations inside the client module.
+    Define an option that sets all boolean options of a group
   """
-  def parse(args, xoptions, client_struct) do
-    case OptionParser.parse(args, strict: make_strict(xoptions, [])) do
-      {switches, args, []} -> {:ok, %{struct(client_struct, switches) | args: args}}
-      {_, _, errors} -> {:error, errors}
+  defmacro group_option(name, group_def)
+  defmacro group_option(name, [for: group]) do
+    quote bind_quoted: [group: group, name: name] do
+      Module.put_attribute( __MODULE__, :_xoptions,
+      [ {:group_option, name, group, nil} | Module.get_attribute( __MODULE__, :_xoptions ) ])
     end
   end
-
-  defp example_value(type) do
-    if Map.has_key?(@defined_types, type) do
-      Map.get(@defined_types, type)
-    else
+  defmacro group_option(name, _) do
+    quote bind_quoted: [name: name] do
       raise """
-      Undefined XOpts type #{type}!
-      Defined Types and their default values are:
-      #{inspect @defined_types}
+      Needed keyword param `for: group` missing for group_option #{name} in #{__FILE__}
       """
     end
   end
 
-  defp make_strict(xoptions, result)
-  defp make_strict([], result), do: result
-  defp make_strict([{name, type, _, _} | rest], result), do: make_strict(rest, [{name, type} | result])
 end

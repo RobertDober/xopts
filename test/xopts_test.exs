@@ -5,7 +5,7 @@ defmodule XoptTest do
   doctest XOpts
 
   describe "created XOpts struct" do
-    test "exists" do
+    test "with defaults" do
       x = %Simple.XOpts{}
       refute x.help
       assert x.verbose
@@ -14,30 +14,33 @@ defmodule XoptTest do
 
     test "can be set by parsing" do
       {:ok, parsed} = Simple.parse(~w{--no-verbose --count=11})
-      refute parsed.verbose
+      %Simple.XOpts{verbose: verbose} = parsed
+      refute verbose
       assert Enum.empty?(parsed.args)
+      assert parsed.options == %{verbose: false, count: 11, help: false} 
     end
   end
-  # describe "simple options" do
 
-  #   test "boolean option" do
-  #     assert Simple.parse(["--help"]).options == %{help: true}
-  #     assert Simple.parse(["--help"]).is.valid?
-  #   end
+  describe "simple options" do
 
-  #   test "two boolean options" do
-  #     assert Simple.parse(["--help", "--version"]).options == %{help: true, version: true}
-  #     assert Simple.parse(["--help"]).options == %{help: true}
-  #     # assert Simple.parse(["--help"]).options == %Simple{help: true}
-  #   end
+    test "boolean option" do
+      {:ok, %{help: help, verbose: verbose}=result} = Simple.parse(~w[--help --no-verbose])
+      assert help
+      refute verbose
+      assert result.is.valid
+    end
 
-  #   test "and args" do
-  #     options = Simple.parse(~w{--help --version arg1 arg2})
-  #     assert options.is.valid?
-  #     assert options.options == %{help: true, version: true}
-  #     assert options.args == ~w{arg1 arg2}
-  #     assert Enum.empty?(options.errors)
+    test "two boolean options" do
+      {:ok, result} = Simple.parse(["--help", "--verbose"])
+      assert result.options == %{help: true, count: 42, verbose: true}
+    end
 
-  #   end
-  # end
+    test "and args" do
+      {:ok, result} = Simple.parse(~w{--help --verbose arg1 arg2})
+      assert result.is.valid
+      assert result.options == %{count: 42, help: true, verbose: true}
+      assert result.args == ~w{arg1 arg2}
+      assert Enum.empty?(result.is.errors)
+    end
+  end
 end
