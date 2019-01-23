@@ -1,5 +1,6 @@
 defmodule XOpts.Tools do
 
+  alias XOpts.Error
   alias XOpts.Group
   
   @moduledoc """
@@ -52,7 +53,7 @@ defmodule XOpts.Tools do
     if Map.has_key?(@defined_types, type) do
       Map.get(@defined_types, type)
     else
-      raise """
+      raise Error, """
       Undefined XOpts type #{type}!
       Defined Types and their default values are:
       #{inspect @defined_types}

@@ -1,0 +1,17 @@
+language: elixir
+sudo: false
+
+branches:
+  only:
+    - master
+    - development
+
+elixir:
+  - 1.8.0
+otp_release:
+  - 21.2
+
+env:
+  - MIX_ENV=test
+
+# script: mix coveralls.travis

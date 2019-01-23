@@ -1,5 +1,16 @@
 # XOpts
 
+  <%= xtra.do_not_edit_warning %>
+
+
+[![Build Status](https://travis-ci.org/RobertDober/xopts.svg?branch=master)](https://travis-ci.org/RobertDober/xopts)
+<!--
+[![Coverage Status](https://coveralls.io/repos/github/RobertDober/extractly/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/extractly?branch=master)
+[![Hex.pm](https://img.shields.io/hexpm/v/extractly.svg)](https://hex.pm/packages/extractly)
+[![Hex.pm](https://img.shields.io/hexpm/dw/extractly.svg)](https://hex.pm/packages/extractly)
+[![Hex.pm](https://img.shields.io/hexpm/dt/extractly.svg)](https://hex.pm/packages/extractly)
+-->
+
 
   <%= xtra.moduledoc "XOpts"  %>
 
