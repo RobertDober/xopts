@@ -2,14 +2,14 @@ defmodule XOpts do
 
   @moduledoc """
   ## Synopsis
- 
+
   Define options to use a module as an `OptionParser.parse` frontend.
 
   Advantages:
 
-    - Declarative Synatx
+    - Declarative Syntax.
     - Added possibilities like defaults, groups and constraints.
-    - Returns a compile time created struct, local to the using module called `XOpts`
+    - Returns a compile time created struct, local to the module using `XOpts`.
 
 
   ## Usage
@@ -36,19 +36,21 @@ defmodule XOpts do
   And a `parse` function is injected into `MyMod`
   its result will match the following
 
-        %MyMod.XOpts{verbose: true, language: "erlang"} = MyMod.parse(~w(--verbose --language erlang)) 
+        %MyMod.XOpts{verbose: true, language: "erlang"} = MyMod.parse(~w(--verbose --language erlang))
 
   TODO:
 
   - Detailed description of the API, maybe including test files?
   """
 
+  @typep xoption_tuple :: {atom(), atom(), atom(), atom()}
+  @type t :: list(xoption_tuple)
   defmacro __before_compile__(_env) do
     quote do
       xoptions = Module.get_attribute( __MODULE__, :_xoptions )
       defmodule XOpts do
 	defstruct unquote(__MODULE__).Tools.make_options(
-          xoptions, 
+          xoptions,
           [],
           %{},
           [args: nil, groups: %{}, is: %{valid: false}, options: %{}])
@@ -68,7 +70,7 @@ defmodule XOpts do
     quote do
       import unquote(__MODULE__)
       @before_compile unquote(__MODULE__)
-      Module.put_attribute __MODULE__, :_xoptions, [] 
+      Module.put_attribute __MODULE__, :_xoptions, []
 
     end
   end

@@ -20,9 +20,9 @@ Define options to use a module as an `OptionParser.parse` frontend.
 
 Advantages:
 
-  - Declarative Synatx
+  - Declarative Syntax.
   - Added possibilities like defaults, groups and constraints.
-  - Returns a compile time created struct, local to the using module called `XOpts`
+  - Returns a compile time created struct, local to the module using `XOpts`.
 
 
 ## Usage
@@ -49,7 +49,7 @@ In the above case the injected `XOpts` module would contain the following code:
 And a `parse` function is injected into `MyMod`
 its result will match the following
 
-      %MyMod.XOpts{verbose: true, language: "erlang"} = MyMod.parse(~w(--verbose --language erlang)) 
+      %MyMod.XOpts{verbose: true, language: "erlang"} = MyMod.parse(~w(--verbose --language erlang))
 
 TODO:
 
