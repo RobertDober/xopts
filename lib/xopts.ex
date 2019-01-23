@@ -3,8 +3,14 @@ defmodule XOpts do
   @moduledoc """
   ## Synopsis
  
-  Use macros to define a parse function (for a strict `OptionParser.parse` invocation)
-  returning a `%__MODULE__.Xopts{}` struct.
+  Define options to use a module as an `OptionParser.parse` frontend.
+
+  Advantages:
+
+    - Declarative Synatx
+    - Added possibilities like defaults, groups and constraints.
+    - Returns a compile time created struct, local to the using module called `XOpts`
+
 
   ## Usage
 
@@ -28,10 +34,13 @@ defmodule XOpts do
         defstruct [version: "", verbose: false, language: "elixir"]
 
   And a `parse` function is injected into `MyMod`
+  its result will match the following
 
         %MyMod.XOpts{verbose: true, language: "erlang"} = MyMod.parse(~w(--verbose --language erlang)) 
 
+  TODO:
 
+  - Detailed description of the API, maybe including test files?
   """
 
   defmacro __before_compile__(_env) do

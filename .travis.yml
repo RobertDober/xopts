@@ -14,4 +14,4 @@ otp_release:
 env:
   - MIX_ENV=test
 
-# script: mix coveralls.travis
+script: mix coveralls.travis

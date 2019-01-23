@@ -8,18 +8,22 @@ and any changes you make in this file will most likely be lost
 
 
 [![Build Status](https://travis-ci.org/RobertDober/xopts.svg?branch=master)](https://travis-ci.org/RobertDober/xopts)
-<!--
-[![Coverage Status](https://coveralls.io/repos/github/RobertDober/extractly/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/extractly?branch=master)
-[![Hex.pm](https://img.shields.io/hexpm/v/extractly.svg)](https://hex.pm/packages/extractly)
-[![Hex.pm](https://img.shields.io/hexpm/dw/extractly.svg)](https://hex.pm/packages/extractly)
-[![Hex.pm](https://img.shields.io/hexpm/dt/extractly.svg)](https://hex.pm/packages/extractly)
--->
+[![Coverage Status](https://coveralls.io/repos/github/RobertDober/xopts/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/xopts?branch=master)
+[![Hex.pm](https://img.shields.io/hexpm/v/xopts.svg)](https://hex.pm/packages/xopts)
+[![Hex.pm](https://img.shields.io/hexpm/dw/xopts.svg)](https://hex.pm/packages/xopts)
+[![Hex.pm](https://img.shields.io/hexpm/dt/xopts.svg)](https://hex.pm/packages/xopts)
 
 
   ## Synopsis
 
-Use macros to define a parse function (for a strict `OptionParser.parse` invocation)
-returning a `%__MODULE__.Xopts{}` struct.
+Define options to use a module as an `OptionParser.parse` frontend.
+
+Advantages:
+
+  - Declarative Synatx
+  - Added possibilities like defaults, groups and constraints.
+  - Returns a compile time created struct, local to the using module called `XOpts`
+
 
 ## Usage
 
@@ -43,10 +47,13 @@ In the above case the injected `XOpts` module would contain the following code:
       defstruct [version: "", verbose: false, language: "elixir"]
 
 And a `parse` function is injected into `MyMod`
+its result will match the following
 
       %MyMod.XOpts{verbose: true, language: "erlang"} = MyMod.parse(~w(--verbose --language erlang)) 
 
+TODO:
 
+- Detailed description of the API, maybe including test files?
 
 
 ## Installation
