@@ -8,7 +8,7 @@ defmodule XOpts do
       xoptions = Module.get_attribute( __MODULE__, :_xoptions)
 
       defmodule XOpts do
-	defstruct unquote(__MODULE__).Tools.make_struct_def( xoptions |> IO.inspect )
+	defstruct unquote(__MODULE__).Tools.make_struct_def( xoptions )
           # [],
           # %{},
           # [args: nil, groups: %{}, is: %{valid: false}, options: %{}])
@@ -55,7 +55,7 @@ defmodule XOpts do
     {:__block__, args, blox1}
   end
   defmacro group(name, do: {:option, line, [option_name]}) do
-    {:option, line, [option_name, group: name]}
+    {:option, line, [option_name, group: name]} |> IO.inspect
   end
 
 end

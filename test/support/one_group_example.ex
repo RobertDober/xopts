@@ -1,4 +1,4 @@
-defmodule Support.CompleteExample do
+defmodule Support.OneGroupExample do
   use XOpts
 
   group :greek do
