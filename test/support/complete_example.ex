@@ -1,8 +1,9 @@
-defmodule Support.V02Example do
+defmodule Support.CompleteExample do
   use XOpts
 
   group :greek do
-    option :beta, :boolean
+    option :beta
+    option :alpha
   end
   option :gamma, :boolean
 

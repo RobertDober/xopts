@@ -13,6 +13,25 @@ defmodule XOpts.Tools do
     string: "",
   }
   
+  @doc """
+  Extracts name and type from xoptions and creates an array to be passed into `defstruct`
+
+  Essentially the type is replaced with a default value, either by the `opts` Keyword or
+  by the type's default default value (pun intended).
+  """
+  def make_struct_def(xoptions), do: _make_struct_def(xoptions)
+
+  defp _make_struct_def(tuple_or_list)
+  defp _make_struct_def({_, _, _}=tol), do: _make_struct_def_element(tol)
+  defp _make_struct_def(list), do: Enum.map(list, &_make_struct_def_element/1) 
+
+  defp _make_struct_def_element({name, type, opts}) do
+    # TODO: Reject illegal types
+    case Keyword.get(opts, :default) do
+      nil              -> {name, example_value!(type)}
+      explicit_default -> {name, explicit_default}
+    end
+  end
 
   @spec make_options( XOpts.t, Keyword.t, map(), Keyword.t ) :: Keyword.t 
   def make_options(xoptions, parsed, groups, result)

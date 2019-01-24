@@ -3,15 +3,15 @@ defmodule XOpts do
 
   defmacro __before_compile__(_env) do
     quote do
-      xoptions = XOpts.MacroState.get_xoptions(__MODULE__)
-      Module.put_attribute( __MODULE__, :_xoptions, xoptions)
+      # xoptions = XOpts.MacroState.get_xoptions(__MODULE__)
+      # Module.put_attribute( __MODULE__, :_xoptions, xoptions)
+      xoptions = Module.get_attribute( __MODULE__, :_xoptions)
 
       defmodule XOpts do
-	defstruct unquote(__MODULE__).Tools.make_options(
-          xoptions,
-          [],
-          %{},
-          [args: nil, groups: %{}, is: %{valid: false}, options: %{}])
+	defstruct unquote(__MODULE__).Tools.make_struct_def( xoptions |> IO.inspect )
+          # [],
+          # %{},
+          # [args: nil, groups: %{}, is: %{valid: false}, options: %{}])
       end
 
       @doc """
@@ -26,32 +26,36 @@ defmodule XOpts do
 
   defmacro __using__(_opts) do
     quote do
-      Module.register_attribute( __MODULE__, :_xoptions, [] )
-      XOpts.MacroState.start_link __MODULE__ 
       import unquote(__MODULE__)
       @before_compile unquote(__MODULE__)
+      Module.register_attribute( __MODULE__, :_xoptions, accumulate: true )
     end
   end
 
   @doc """
     Define an option by name, type and an optional default value.
   """
-  defmacro option(name, definition, default \\ nil, group \\ nil)
-  defmacro option(name, type, default, group) do
-    quote bind_quoted: [default: default, group: group, name: name, type: type] do
-      {group1, xoptions} = XOpts.MacroState.get_state(__MODULE__)
-      group2 = group1 || group
-      values = {name, type, :group , group2}
-      XOpts.MacroState.add_xoption(__MODULE__, values)
+  defmacro option(name, type \\ :boolean, opts \\ [] )
+  defmacro option(name, {:group, group}, _) do
+    quote bind_quoted: [group: group, name: name] do
+      values = {name, :boolean, [group: group]}
+      Module.put_attribute __MODULE__, :_xoptions, values
+    end
+  end
+  defmacro option(name, type, opts) do
+    quote bind_quoted: [name: name, opts: opts, type: type] do
+      values = {name, type, opts}
+      Module.put_attribute __MODULE__, :_xoptions, values
     end
   end
 
-  defmacro group(name, do: block) do
-    quote bind_quoted: [block: block, name: name] do
-      XOpts.MacroState.set_group(__MODULE__, name)
-      block
-      XOpts.MacroState.set_group(__MODULE__, nil)
-    end
+  defmacro group(name, code)
+  defmacro group(name, do: {:__block__, args, blox} = block) do
+    blox1 = blox |> Enum.map( fn {x, y, [z]} -> {x, y, [z, group: name]} end )
+    {:__block__, args, blox1}
+  end
+  defmacro group(name, do: {:option, line, [option_name]}) do
+    {:option, line, [option_name, group: name]}
   end
 
 end
