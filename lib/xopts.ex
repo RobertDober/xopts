@@ -1,4 +1,5 @@
 defmodule XOpts do
+  alias XOpts.Options
 
   @moduledoc """
   # XOpts a Command Line Argument Parser on Steroids.
@@ -39,18 +40,18 @@ defmodule XOpts do
 
 
   ### Simple Configuration
-  
+
 
   #### Restricting and Typing Keyword Arguments
-  
+
   As we have seen in the examples configuration can be passed as keyword arguments, however for more
   complex configuration that might become tedious and we therefore will pass in a map.
 
       iex(7)> configuration = %{
-      ...(7)>   allowed_keywords = %{
+      ...(7)>   allowed_keywords: %{
       ...(7)>     count: :int,
       ...(7)>     message: :string }}
-      ...(7)> XOpts.parse(~W[hello count: 42]})
+      ...(7)> XOpts.parse(~W[hello count: 42])
       {:ok, %{switches: %{}, keywords: %{count: 42}, positionals: ~W[hello], errors: []}}
 
   Did you notice the type conversion of the `int` parameter?
@@ -58,122 +59,103 @@ defmodule XOpts do
 
   Now the user is alerted of misspelled or badly typed arguments:
 
-      iex(8)> @expected_errors  [{:forbidden, keyword: "cont", value: 42}]
-      ...(8)> configuration = %{
-      ...(8)>   allowed_keywords = %{
+      iex(8)> configuration = %{
+      ...(8)>   allowed_keywords: %{
       ...(8)>     count: :int,
       ...(8)>     message: :string }}
-      ...(8)> XOpts.parse(~W[hello cont: 42]})
-      {:error, %{switches: %{}, keywords: %{}, positionals: ~W[hello], errors: @expected_errors}}
+      ...(8)> XOpts.parse(~W[hello cont: 42])
+      {:error,
+        %{switches: %{},
+          keywords: %{}, 
+          positionals: ~W[hello], 
+          errors: [{:forbidden, keyword: "cont", value: 42}]}}
 
   She will also be alerted of badly typed arguments
 
-      iex(9)> @expected_errors  [{:invalid_type, keyword: "cont", value: "alpha", requested: :int}]
-      ...(9)> configuration = %{
-      ...(9)>   allowed_keywords = %{
+      iex(9)> configuration = %{
+      ...(9)>   allowed_keywords: %{
       ...(9)>     count: :int,
       ...(9)>     message: :string }}
-      ...(9)> XOpts.parse(~W[hello cont: alpha]})
-      {:error, %{switches: %{}, keywords: %{}, positionals: ~W[hello], errors: @expected_errors}}
+      ...(9)> XOpts.parse(~W[hello cont: alpha])
+      {:error, 
+        %{switches: %{},
+          keywords: %{},
+          positionals: ~W[hello],
+          errors: [{:invalid_type, keyword: "cont", value: "alpha", requested: :int}]}}
 
   #### Requiring and Typing Keyword Arguments
-  
+
   Sometimes keyword arguments need to be present
 
-      iex(0)> configuration = %{
-      ...(0)>   requested_keywords: %{
-      ...(0)>     n: :non_negative_int }}
-      ...(0)> XOpts.parse(~W[n: 2])
+      iex(10)> configuration = %{
+      ...(10)>   requested_keywords: %{
+      ...(10)>     n: :non_negative_int }}
+      ...(10)> XOpts.parse(~W[n: 2])
       {:ok, %{switches: %{}, keywords: %{n: 2}, positionals: ~W[], errors: []}}
 
   and when they are not
 
-      iex(0)> @expected_errors [{:missing, keyword: "n"}]
-      iex(0)> configuration = %{
-      ...(0)>   requested_keywords: %{
-      ...(0)>     n: :non_negative_int }}
-      ...(0)> XOpts.parse(~W[n: 2])
+      iex(11)> configuration = %{
+      ...(11)>   requested_keywords: %{
+      ...(11)>     n: :non_negative_int }}
+      ...(11)> XOpts.parse(~W[n: 2])
       {:ok,
-        %{switches: %{}, keywords: %{n: 2}, positionals: ~W[], errors: @expected_errors}}
+        %{switches: %{}, keywords: %{n: 2}, positionals: ~W[], errors: [{:missing, keyword: "n"}]}}
 
   or violate a constraint
 
-      iex(0)> @expected_errors [{:constraint_violation, keyword: "n", value: -1, range: [0]}]
-      iex(0)> configuration = %{
-      ...(0)>   requested_keywords: %{
-      ...(0)>     n: :non_negative_int }}
-      ...(0)> XOpts.parse(~W[n: 2])
-      {:ok,
-        %{switches: %{}, keywords: %{n: 2}, positionals: ~W[], errors: @expected_errors}}
+      iex(12)> configuration = %{
+      ...(12)>   requested_keywords: %{
+      ...(12)>     n: :non_negative_int }}
+      ...(12)> XOpts.parse(~W[n: 2])
+      {:error,
+        %{switches: %{},
+          keywords: %{n: 2},
+          positionals: [],
+          errors: [{:constraint_violation, keyword: "n", value: -1, range: [0]}]}}
 
   #### A wild combination of errors
 
-      iex(0)> @expected_errors [
-      ...(0)> {:forbidden, switch: "verbose"},
-      ...(0)> {:missing, keyword: "base"},
-      ...(0)> {:constraint_violation, keyword: "lang", value: "frr", constraint: ~r(\A [[:alnum]]{2} \z)x} ]
-      ...(0)> configuration = %{
-      ...(0)>    allowed_keywords: %{
-      ...(0)>      lang: ~r(\A [[:alnum]]{2} \z)x}}
-      ...(0)>    requested_keywords: %{
-      ...(0)>      base: :any},
-      ...(0)>    allowed_switches: []}
-      ...(0)> input = ~W[ --verbose lang: frr ]
-      ...(0)> XOpts.parse(input, configuration)
+      iex(13)> configuration = %{
+      ...(13)>    allowed_keywords: %{
+      ...(13)>      lang: ~r(\A [[:alnum]]{2} \z)x},
+      ...(13)>    requested_keywords: %{
+      ...(13)>      base: :any},
+      ...(13)>    allowed_switches: []}
+      ...(13)> input = ~W[ --verbose lang: frr ]
+      ...(13)> XOpts.parse(input, configuration)
       {:error,
         %{
           switches: %{},
           keywords: %{},
           positionals: [],
-          errors: @expected_errors}}
+          errors: [
+            {:forbidden, switch: "verbose"},
+            {:missing, keyword: "base"},
+            {:constraint_violation, keyword: "lang", value: "frr", constraint: ~r(\A [[:alnum]]{2} \z)x}]}}
 
   Which was, of course, completely unnecessary
 
-      ...(0)> configuration = %{
-      ...(0)>    allowed_keywords: %{
-      ...(0)>      lang: ~r(\A [[:alnum]]{2} \z)x}}
-      ...(0)>    requested_keywords: %{
-      ...(0)>      base: :any},
-      ...(0)>    allowed_switches: []}
-      ...(0)> input = ~W[ lang: fr --base zero cinq ]
-      ...(0)> XOpts.parse(input, configuration)
+      iex(13)> configuration = %{
+      ...(13)>    allowed_keywords: %{
+      ...(13)>      lang: ~r(\A [[:alnum]]{2} \z)x},
+      ...(13)>    requested_keywords: %{
+      ...(13)>      base: :any},
+      ...(13)>    allowed_switches: []}
+      ...(14)> input = ~W[ lang: fr --base zero cinq ]
+      ...(14)> XOpts.parse(input, configuration)
       {:ok
         %{
           switches: %{},
           keywords: %{base: "zero", lang: "fr"},
           positionals: ~W[cinq],
           errors: []}}
-
   """
 
-
-  @doc """
-    Define an option by name, type and an optional default value.
-  """
-  defmacro option(name, definition, default \\ nil, group \\ nil)
-  defmacro option(name, type, default, group) do
-    quote bind_quoted: [default: default, group: group, name: name, type: type] do
-      Module.put_attribute( __MODULE__, :_xoptions,
-      [ {name, type, default, group} | Module.get_attribute( __MODULE__, :_xoptions ) ])
-    end
+  def parse(input, options \\ []) do
+    _parse(input, Options.new(options))
   end
 
-  @doc """
-    Define an option that sets all boolean options of a group
-  """
-  defmacro group_option(name, group_def)
-  defmacro group_option(name, [for: group]) do
-    quote bind_quoted: [group: group, name: name] do
-      Module.put_attribute( __MODULE__, :_xoptions,
-      [ {:group_option, name, group, nil} | Module.get_attribute( __MODULE__, :_xoptions ) ])
-    end
-  end
-  defmacro group_option(name, _) do
-    quote bind_quoted: [name: name] do
-      raise """
-      Needed keyword param `for: group` missing for group_option #{name} in #{__FILE__}
-      """
-    end
-  end
-
+  defp _parse(input, options)
+  defp _parse(_input, _options), do: nil
 end
