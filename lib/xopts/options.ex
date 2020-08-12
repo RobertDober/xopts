@@ -8,17 +8,21 @@ defmodule XOpts.Options do
             requested_keywords: %{},
             errors: [],
             keyword_style: true,
-            posix: true
+            posix: true,
+            strict: false
 
   @type t :: %__MODULE__{
     allowed_keywords: maybe(map()),
     allowed_switches: list(atom()),
     requested_keywords: map(),
     keyword_style: boolean(),
-    posix: boolean()
+    posix: boolean(),
+    strict: boolean()
   }
 
-  @spec new(map() | t() | Keyword.t) :: t()
+  @type user_options_t :: t() | map() | Keyword.t
+
+  @spec new(user_options_t()) :: t()
   def new(source)
   def new(%__MODULE__{}=options) do
     options

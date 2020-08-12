@@ -29,6 +29,11 @@ defmodule Options.NewTest do
       expected = %Options{requested_keywords: %{n: :int}, posix: false}
       assert new(%{requested_keywords: %{n: :int}, posix: false}) == expected
     end
+
+    test "strict and keyword_style from Options" do
+      expected = %Options{keyword_style: false, strict: true}
+      assert new(expected) == expected
+    end
   end
   
 end

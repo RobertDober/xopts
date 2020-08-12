@@ -14,7 +14,19 @@ defmodule XOpts.Types do
       @type error_ts :: list(error_t())
       @type non_empty_errors :: [error_t() | error_ts()]
 
-      @type result_t(rt) :: {:ok, rt, []} | {:error, rt, error_ts()}
+      @type xopts_error_t :: {:error,
+       %{
+          switches: map(),
+          keywords: map(),
+          positionals: list(),
+          errors: non_empty_errors()}}
+      @type xopts_ok_t :: {:ok,
+       %{
+          switches: map(),
+          keywords: map(),
+          positionals: list(),
+          errors: []}}
+      @type xopts_t :: xopts_ok_t() | xopts_error_t() 
 
 
       @type maybe(target_t) :: target_t | nil

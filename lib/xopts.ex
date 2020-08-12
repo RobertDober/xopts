@@ -1,5 +1,7 @@
 defmodule XOpts do
+  use XOpts.Types
   alias XOpts.Options
+  alias XOpts.Result
 
   @moduledoc """
   # XOpts a Command Line Argument Parser on Steroids.
@@ -150,12 +152,49 @@ defmodule XOpts do
           keywords: %{base: "zero", lang: "fr"},
           positionals: ~W[cinq],
           errors: []}}
+
+  #### Strict Order
+
+  The first possibility do assure the Order Of Things (TM: Dominon) is just to assure that keyword arguments and switches come
+  before poistional arguments.
+
+  This can be accomplished with the `strict: true` parameter
+
+      iex(0)> XOpts.parse(~W[hello :world], strict: true)
+      {:error,
+        %{switches: %{}, keywords: %{}, positionals: ~W[hello :world], errors: [
+          {:ordered_argument_error, world: "after positional"}}
+        ]}}
+
+  or simply by calling the `parse_strictly/2` function
+
+      iex(0)> XOpts.parse_strictly(~W[hello :world])
+      {:error,
+        %{switches: %{}, keywords: %{}, positionals: ~W[hello :world], errors: [
+          {:ordered_argument_error, world: "after positional"}}
+        ]}}
+
+  Of course the _End Of Keywords_ separator `::` or `--` avoid this
+
+      iex(0)> XOpts.parse_strictly(~W[hello :: :world])
+      {:ok,
+        %{switches: %{}, keywords: %{}, positionals: ~W[hello :world], errors: []}}
+
   """
 
+  @spec parse(binaries(), Options.user_options_t()) :: xopts_t()
   def parse(input, options \\ []) do
     _parse(input, Options.new(options))
   end
 
+  @spec parse_strictly(binaries(), Options.user_options_t()) :: xopts_t()
+  def parse_strictly(input, options) do
+    _parse(input, %{Options.new(options) | strict: true})
+  end
+
+  @spec _parse(binaries(), Options.user_options_t() ) :: xopts_t() 
   defp _parse(input, options)
-  defp _parse(_input, _options), do: nil
+  defp _parse(_input, _options) do
+    {:ok, Map.from_struct(%Result{})}
+  end
 end
