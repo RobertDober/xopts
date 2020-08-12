@@ -5,7 +5,7 @@ defmodule Xopt.MixProject do
     [
       app: :xopt,
       version: "0.1.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -29,9 +29,9 @@ defmodule Xopt.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:excoveralls, "~> 0.10.3", only: :test},
-      {:dialyxir, "~> 1.0.0-pre", only: [:dev, :test], runtime: false},
-      {:extractly, "~> 0.1.2", only: :dev, runtime: false}
+      {:excoveralls, "~> 0.13.1", only: :test},
+      {:dialyxir, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:extractly, "~> 0.1.5", only: :dev, runtime: false}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]
