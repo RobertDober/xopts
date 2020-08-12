@@ -6,6 +6,7 @@ defmodule XOpts.Options do
   defstruct allowed_keywords: nil,
             allowed_switches: nil,
             requested_keywords: %{},
+            nof_postionals: [],
             errors: [],
             keyword_style: true,
             posix: true,
@@ -15,6 +16,7 @@ defmodule XOpts.Options do
     allowed_keywords: maybe(map()),
     allowed_switches: list(atom()),
     requested_keywords: map(),
+    nof_postionals: list(non_neg_integer()),
     keyword_style: boolean(),
     posix: boolean(),
     strict: boolean()

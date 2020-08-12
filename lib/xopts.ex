@@ -138,12 +138,12 @@ defmodule XOpts do
 
   Which was, of course, completely unnecessary
 
-      iex(13)> configuration = %{
-      ...(13)>    allowed_keywords: %{
-      ...(13)>      lang: ~r(\A [[:alnum]]{2} \z)x},
-      ...(13)>    requested_keywords: %{
-      ...(13)>      base: :any},
-      ...(13)>    allowed_switches: []}
+      iex(14)> configuration = %{
+      ...(14)>    allowed_keywords: %{
+      ...(14)>      lang: ~r(\A [[:alnum]]{2} \z)x},
+      ...(14)>    requested_keywords: %{
+      ...(14)>      base: :any},
+      ...(14)>    allowed_switches: []}
       ...(14)> input = ~W[ lang: fr --base zero cinq ]
       ...(14)> XOpts.parse(input, configuration)
       {:ok
@@ -160,7 +160,7 @@ defmodule XOpts do
 
   This can be accomplished with the `strict: true` parameter
 
-      iex(0)> XOpts.parse(~W[hello :world], strict: true)
+      iex(15)> XOpts.parse(~W[hello :world], strict: true)
       {:error,
         %{switches: %{}, keywords: %{}, positionals: ~W[hello :world], errors: [
           {:ordered_argument_error, world: "after positional"}}
@@ -168,7 +168,7 @@ defmodule XOpts do
 
   or simply by calling the `parse_strictly/2` function
 
-      iex(0)> XOpts.parse_strictly(~W[hello :world])
+      iex(16)> XOpts.parse_strictly(~W[hello :world])
       {:error,
         %{switches: %{}, keywords: %{}, positionals: ~W[hello :world], errors: [
           {:ordered_argument_error, world: "after positional"}}
@@ -176,10 +176,63 @@ defmodule XOpts do
 
   Of course the _End Of Keywords_ separator `::` or `--` avoid this
 
-      iex(0)> XOpts.parse_strictly(~W[hello :: :world])
+      iex(17)> XOpts.parse_strictly(~W[hello :: :world])
       {:ok,
         %{switches: %{}, keywords: %{}, positionals: ~W[hello :world], errors: []}}
 
+
+  ### Advanced Configuration
+  
+
+  #### Constraints on Positionals
+
+
+  It might be necessary to request and or restrict the number of positional parameters
+
+  A first example requiring at least two
+
+      iex(18)> configuration = %{
+      ...(18)>   nof_postionals: [2]}
+      ...(18)> XOpts.parse(~W[a]), configuration)
+      {:error,
+        %{switches: %{}, keywords: %{}, poistionals: ~W[a], errors: [
+        {:missing_positional, needed: 2, present: 1}
+        ]}
+      } 
+
+  Of course Chuck Norris 5th lemma holds: Enough is enough
+
+      iex(19)> configuration = %{
+      ...(19)>   nof_postionals: [2]}
+      ...(19)> XOpts.parse(~W[a b]), configuration)
+      {:ok,
+        %{switches: %{}, keywords: %{}, poistionals: ~W[a b], errors: []}}
+      } 
+
+  If we want to restrict the number of positionals it is done with the second number in this list:
+
+      iex(20)> configuration = %{
+      ...(20)>   nof_postionals: [1, 2]}
+      ...(20)> XOpts.parse(~W[a b c]), configuration)
+      {:error,
+        %{switches: %{}, keywords: %{}, poistionals: ~W[a b c], errors: [
+        {:spurious_positional, allowed: 2, present: 3}
+        ]}
+      } 
+
+  We can also constrain positional parameters
+
+      iex(0)> configuration = %{
+      ...(0)>   positional_constraints: [:int, ~r{\AA}]} # Stupid example but well
+      ...(0)> XOpts.parse(~W[ab Bc], configuration)
+      {:error,
+        %{switches: %{}, keywords: %{}, poistionals: ~W[a b c],
+          errors: [
+            {:constraint_violation, positional: 1, value: "ab", constraint: :int},
+            {:constraint_violation, positional: 2, value: "Bc", constraint: ~r{\AA}},
+          ]}}
+
+  and use nil for unconstrained positionals between constrained ones:
   """
 
   @spec parse(binaries(), Options.user_options_t()) :: xopts_t()
