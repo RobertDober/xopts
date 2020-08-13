@@ -1,5 +1,5 @@
 defmodule XoptTest do
   use ExUnit.Case
 
-  doctest XOpts
+  doctest XOpts, import: true
 end

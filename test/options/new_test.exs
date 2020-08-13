@@ -25,9 +25,9 @@ defmodule Options.NewTest do
       assert new(allowed_keywords: %{}) == expected
     end
 
-    test "requested_keywords and posix from map" do
-      expected = %Options{requested_keywords: %{n: :int}, posix: false}
-      assert new(%{requested_keywords: %{n: :int}, posix: false}) == expected
+    test "required_keywords and posix from map" do
+      expected = %Options{required_keywords: %{n: :int}, posix: false}
+      assert new(%{required_keywords: %{n: :int}, posix: false}) == expected
     end
 
     test "strict and keyword_style from Options" do
