@@ -7,7 +7,11 @@ defmodule XOpts.Types do
 
       @type either(ok_t, error_t) :: {:ok, ok_t} | {:error, error_t}
 
-      @type config_error_t :: {:empty_range, Keyword.t()}
+      @type empty_range_t :: {:empty_range, Keyword.t()}
+      @type illegal_default_t :: {:illegal_default, Keyword.t}
+      @type config_error_t ::
+              empty_range_t
+              | illegal_default_t
               
       @type config_error_ts :: list(config_error_t())
 

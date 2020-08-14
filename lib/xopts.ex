@@ -363,7 +363,10 @@ defmodule XOpts do
   @spec _parse(binaries(), Options.user_options_t()) :: xopts_t()
   defp _parse(input, options)
 
-  defp _parse(_input, _options) do
-    {:ok, Map.from_struct(%Result{})}
+  defp _parse(_input, options) do
+    case Options.check(options) do
+      {:ok, _options1} -> {:ok, Map.from_struct(%Result{})}
+      {:error, errors} -> {:illegal_config, errors}
+    end
   end
 end
