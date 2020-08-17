@@ -9,10 +9,12 @@ defmodule Options.NewTest do
       expected = %Options{}
       assert new([]) == expected
     end
+
     test "from empty hash" do
       expected = %Options{}
       assert new(%{}) == expected
     end
+
     test "from default struct" do
       expected = %Options{}
       assert new(struct(Options)) == expected
@@ -35,5 +37,4 @@ defmodule Options.NewTest do
       assert new(expected) == expected
     end
   end
-  
 end

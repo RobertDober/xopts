@@ -6,11 +6,10 @@ defmodule XOpts do
   @moduledoc """
   # XOpts a Command Line Argument Parser on Steroids.
 
-  ## Synopsis
 
-  ### Basic Usage
+  ## Ridiculous Speed Starting Guide
 
-  Let us dive right into the simplest, possible case:
+  ### Zero Configuration, (almost) Zero Value
 
       iex(1)> XOpts.parse([])
       {:ok, %{switches: %{}, keywords: %{}, positionals: [], errors: []}}
@@ -26,25 +25,70 @@ defmodule XOpts do
       iex(4)> XOpts.parse(~W[--verbose alpha --level 42 beta gamma])
       {:ok, %{switches: %{verbose: true}, keywords: %{level: "42"}, positionals: ~W[alpha beta gamma], errors: []}}
 
-  However we do not need to:
-
-      iex(5)> XOpts.parse(~W[--verbose alpha --level 42 beta gamma], posix: false)
-      {:ok, %{switches: %{}, keywords: %{}, positionals: ~W[--verbose alpha --level 42 beta gamma], errors: []}}
-
-  For fairness we can also dissallow keyword style arguments:
-
-      iex(6)> XOpts.parse(~W[:verbose alpha level: 42 beta gamma], keyword_style: false)
-      {:ok, %{switches: %{}, keywords: %{}, positionals: ~W[:verbose alpha level: 42 beta gamma], errors: []}}
+  ### Configure for ~~Great~~ ~~Incredible~~ Ridiculous Value
 
 
-  Of course, using the `XOpts` Parser without any configuration - meaning the default configuration -
-  does not give us much value.
+      iex(5)> configuration = %{
+      ...(5)>   allowed_keywords: %{
+      ...(5)>     alpha2: {:string, default: "fr"}
+      ...(5)>   },
+      ...(5)>   required_keywords: %{
+      ...(5)>     value: {:int, min: 1} # could be written as: value: :positive_int
+      ...(5)>   },
+      ...(5)>   allowed_switches: [
+      ...(5)>     :verbose, :dry_run, :utf8 ]}
+      ...(5)> XOpts.parse(~W[ value: 42 :dry_run some_file])
+      {:ok,
+        %{
+          switches: %{
+            dry_run: true,
+            utf8: false,
+            verbose: false
+          },
+          keywords: %{
+            alpha2: "fr",
+            value: 42
+          },
+          positionals: ~W[some_file],
+          errors: []
+        }}
+
+      However!!!
+
+      iex(6)> configuration = %{
+      ...(6)>   allowed_keywords: %{
+      ...(6)>     alpha2: {:string, default: "fr"}
+      ...(6)>   },
+      ...(6)>   required_keywords: %{
+      ...(6)>     value: {:int, min: 1} # could be written as: value: :positive_int
+      ...(6)>   },
+      ...(6)>   allowed_switches: [
+      ...(6)>     :verbose, :dry_run, :utf8 ]}
+      ...(6)> XOpts.parse(~W[ min: 2 :foo value: 42 :dry_run some_file])
+      {:error,
+        %{
+          switches: %{
+            dry_run: true,
+            foo: true,
+            utf8: false,
+            verbose: false
+          },
+          keywords: %{
+            alpha2: "fr",
+            min: "2",
+            value: 42
+          },
+          positionals: ~W[some_file],
+          errors: [
+            {:forbidden, keyword: :min, value: "2"},
+            {:forbidden, switch: :foo}
+          ]
+        }}
 
 
-  ### Simple Configuration
+  ## Incredible Speed Starting Guide
 
-
-  #### Restricting and Typing Keyword Arguments
+  ### Restricting and Typing Keyword Arguments
 
   As we have seen in the examples configuration can be passed as keyword arguments, however for more
   complex configuration that might become tedious and we therefore will pass in a map.
@@ -84,6 +128,11 @@ defmodule XOpts do
           keywords: %{},
           positionals: ~W[hello],
           errors: [{:invalid_type, keyword: "cont", value: "alpha", requested: :int}]}}
+
+
+
+
+
 
   #### Requiring and Typing Keyword Arguments
 
@@ -248,7 +297,7 @@ defmodule XOpts do
   We can also constrain positional parameters
 
       iex(23)> configuration = %{
-      ...(23)>   positional_constraints: [:int, ~r{\AA}]} # Stupid example but well
+      ...(23)>   positional_constraints: [:int, {:string, match: ~r{\AA}}]} # Stupid example but well
       ...(23)> XOpts.parse(~W[ab Bc], configuration)
       {:error,
         %{switches: %{}, keywords: %{}, poistionals: ~W[ab Bc],
@@ -286,9 +335,9 @@ defmodule XOpts do
   form.
 
   #### :int type
-  
+
   ##### Min, Max, Range
- 
+
   We have already seen an example for that, but there can be constraints added as follows
 
   For simplicity we will use the imported form for doctests from now on, obviously `parse/1` is imported from
@@ -348,6 +397,20 @@ defmodule XOpts do
         %{switches: %{}, keywords: %{n: 0}, positionals: [], errors: [
         {:constraint_violation_error, keyword: :n, value: 0, min: 1}
         ]}}
+
+  ## Great Speed Starting Guide
+
+  ### Posix Or Not Posix?
+
+  If we do not want to parse posix switches or keywords we can disable them
+
+      iex(33)> XOpts.parse(~W[--verbose alpha --level 42 beta gamma], posix: false)
+      {:ok, %{switches: %{}, keywords: %{}, positionals: ~W[--verbose alpha --level 42 beta gamma], errors: []}}
+
+  For fairness we can also disable keyword style arguments:
+
+      iex(34)> XOpts.parse(~W[:verbose alpha level: 42 beta gamma], keyword_style: false)
+      {:ok, %{switches: %{}, keywords: %{}, positionals: ~W[:verbose alpha level: 42 beta gamma], errors: []}}
   """
 
   @spec parse(binaries(), Options.user_options_t()) :: xopts_t()

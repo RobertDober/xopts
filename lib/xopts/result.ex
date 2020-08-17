@@ -1,5 +1,4 @@
 defmodule XOpts.Result do
-
   use XOpts.Types
 
   @moduledoc false
@@ -8,11 +7,11 @@ defmodule XOpts.Result do
             keywords: %{},
             positionals: [],
             errors: []
-  
+
   @type t :: %__MODULE__{
-    switches: map(),
-    keywords: map(),
-    positionals: list(),
-    errors: error_ts()
-  }
+          switches: map(),
+          keywords: map(),
+          positionals: list(),
+          errors: error_ts()
+        }
 end

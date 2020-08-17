@@ -7,12 +7,21 @@ defmodule XOpts.Types do
 
       @type either(ok_t, error_t) :: {:ok, ok_t} | {:error, error_t}
 
+      @type numbered_list(of_type) :: list({of_type, pos_integer()})
+
+      @type type_t :: atom()
+      @type position_t :: atom() | pos_integer()
+      @type definition_tuple_t :: {atom(), any()}
+      @type definition_kwd_t :: list(definition_tuple_t())
+      @type complex_definition_t :: {type_t, definition_kwd_t()}
+      @type definition_t :: type_t() | complex_definition_t()
+
       @type empty_range_t :: {:empty_range, Keyword.t()}
-      @type illegal_default_t :: {:illegal_default, Keyword.t}
+      @type illegal_default_t :: {:illegal_default, Keyword.t()}
       @type config_error_t ::
               empty_range_t
               | illegal_default_t
-              
+
       @type config_error_ts :: list(config_error_t())
 
       @type constraint_violation_error :: {:constraint_violation, Keyword.t()}
@@ -41,7 +50,7 @@ defmodule XOpts.Types do
                }}
 
       @type xopts_illegal_config_t :: {:illegal_config, config_error_ts()}
-              
+
       @type xopts_ok_t ::
               {:ok,
                %{

@@ -17,11 +17,10 @@ and any changes you make in this file will most likely be lost
 
 # XOpts a Command Line Argument Parser on Steroids.
 
-## Synopsis
 
-### Basic Usage
+## Ridiculous Speed Starting Guide
 
-Let us dive right into the simplest, possible case:
+### Zero Configuration, (almost) Zero Value
 
     iex(1)> XOpts.parse([])
     {:ok, %{switches: %{}, keywords: %{}, positionals: [], errors: []}}
@@ -37,19 +36,35 @@ Posix is widely used and although it is ugly (beauty lies you know in whose eyes
     iex(4)> XOpts.parse(~W[--verbose alpha --level 42 beta gamma])
     {:ok, %{switches: %{verbose: true}, keywords: %{level: "42"}, positionals: ~W[alpha beta gamma], errors: []}}
 
-However we do not need to:
+### Configure for ~~Great~~ ~~Incredible~~ Ridiculous Value
+
+
+    iex(0)> configuration = %{
+    ...(0)>   allowed_keywords: %{
+    ...(0)>     alpha2: {:string, default: "fr"}
+    ...(0)>   },
+    ...(0)>   required_keywords: %{
+    ...(0)>     value: {:int, min: 1} # could be written as: value: :positive_int
+    ...(0)>   }
+
+
+## Incredible Speed Starting Guide
+
+## Great Speed Starting Guide
+
+### Posix Or Not Posix?
+
+If we do not want to parse posix switches or keywords we can disable them
 
     iex(5)> XOpts.parse(~W[--verbose alpha --level 42 beta gamma], posix: false)
     {:ok, %{switches: %{}, keywords: %{}, positionals: ~W[--verbose alpha --level 42 beta gamma], errors: []}}
 
-For fairness we can also dissallow keyword style arguments:
+For fairness we can also disable keyword style arguments:
 
     iex(6)> XOpts.parse(~W[:verbose alpha level: 42 beta gamma], keyword_style: false)
     {:ok, %{switches: %{}, keywords: %{}, positionals: ~W[:verbose alpha level: 42 beta gamma], errors: []}}
 
 
-Of course, using the `XOpts` Parser without any configuration - meaning the default configuration -
-does not give us much value.
 
 
 ### Simple Configuration
